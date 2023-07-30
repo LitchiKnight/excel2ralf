@@ -4,15 +4,12 @@ from ral_model.field import Field
 
 class Register:
     def __init__(self, name):
-        if isinstance(name, str):
-            self.__name = name
-        else:
-            print("[Error] register name must be string, please check!")
+        self.__name       = name
         self.__site       = 0
         self.__offset     = "\'h0"
         self.__width      = 32
         self.__field_list = []
-        self.__rsv_cnt = 0
+        self.__rsv_cnt    = 0
 
     # ================ name ================ #
     def get_reg_name(self):
@@ -20,39 +17,21 @@ class Register:
 
     # ================ site ================ #
     def set_site(self, site):
-        if isinstance(site, int):
-            if site >= 0:
-                self.__site = site
-                return
-            else:
-                print(f"[Error] invalid value {site} for {self.get_reg_name()}.site, please check!")
-        else:
-            print(f"[Error] {self.get_reg_name()}.site must be int, please check!")
+        self.__site = site
 
     def get_site(self):
         return self.__site
 
     # ================ offset ================ #
     def set_offset(self, offset):
-        if isinstance(offset, str):
-            self.__offset = offset
-        else:
-            #TODO: use regular expression later
-            print(f"[Error] {self.get_reg_name()}.offset must be string, please check!")
+        self.__offset = offset
 
     def get_offset(self):
         return self.__offset
 
     # ================ width ================ #
     def set_width(self, width):
-        if isinstance(width, int):
-            if width in VALID_WIDTH:
-                self.__width = width
-                return
-            else:
-                print(f"[Error] invalid value {width} for {self.get_reg_name()}.width, please check!")
-        else:
-            print(f"[Error] {self.get_reg_name()}.width must be int, please check!")                
+        self.__width = width            
 
     def get_width(self):
         return self.__width

@@ -39,6 +39,6 @@ def main():
     ralf_name = f"{module_name if module_name else BLOCK_NAME}.ralf"
     with open(f"{output_path}\{ralf_name}", "w") as f:
         f.write(ral)
-    print(f"[Info] {ralf_name} is already output to {os.path.abspath(output_path)}, please check.")
+    print(f"[Info] {ralf_name} is already output to {os.path.abspath(output_path)}, please confirm.")
 
 main()

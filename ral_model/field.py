@@ -3,11 +3,8 @@ from base.const import *
 
 class Field:
     def __init__(self, name):
-        if isinstance(name, str):
-            self.__name = name
-        else:
-            print("[Error] field name must be string, please check!")
-        self.__bits   = 1
+        self.__name   = name
+        self.__bits   = []
         self.__access = "rw"
         self.__reset  = "1'b0"
         self.__desc   = ""
@@ -24,43 +21,33 @@ class Field:
 
     # ================ bits ================ #
     def set_bits(self, bits):
-        if isinstance(bits, int):
-            if bits > 0:
-                self.__bits = bits
-                return
-            else:
-                print(f"[Error] invalid value {bits} for {self.get_field_name()}.bits, please check!")
-        else:
-            print(f"[Error] {self.get_field_name()}.bits must be int, please check!")
-        sys.exit()
+        if bits[0] < bits[1]:
+            print(f"[Error] invalid value {bits} for {self.get_field_name()}.bits, please check!")
+            sys.exit()
+        self.__bits = bits
 
     def get_bits(self):
         return self.__bits
+    
+    def get_bit_range(self):
+        return self.__bits[0] - self.__bits[1] + 1
 
     # ================ access ================ #
     def set_access(self, access):
-        if isinstance(access, str):
-            l_access = access.lower()
-            if l_access in ACCESS_LIST:
-                self.__access = l_access
-                return
-            else:
-                print(f"[Error] invalid value {access} for {self.get_field_name()}.access, please check!")
+        l_access = access.lower()
+        if l_access in ACCESS_LIST:
+            self.__access = l_access
+            return
         else:
-            print(f"[Error] {self.get_field_name()}.access must be string, please check!")
-        sys.exit()
+            print(f"[Error] invalid value {access} for {self.get_field_name()}.access, please check!")
+            sys.exit()
     
     def get_access(self):
         return self.__access
 
     # ================ reset ================ #
     def set_reset(self, reset):
-        if isinstance(reset, str):
-            self.__reset = reset
-            return
-        else:
-            print(f"[Error] {self.get_field_name()}.reset must be string, please check!")
-        sys.exit()
+        self.__reset = reset
     
     def get_reset(self):
         return self.__reset
@@ -73,8 +60,8 @@ class Field:
         return self.__desc
 
     def print(self):
-        print(f"field {self.get_field_name()} {{\n\tbits {self.get_bits()}\n\taccess {self.get_access()}\n\treset {self.get_reset()}\n}}")
+        print(f"field {self.get_field_name()} {{\n\tbits {self.get_bit_range()}\n\taccess {self.get_access()}\n\treset {self.get_reset()}\n}}")
 
     def gen_ral(self):
-        ral = f"\tfield {self.get_field_name()} {{\n\t\tbits {self.get_bits()};\n\t\taccess {self.get_access()};\n\t\treset {self.get_reset()};\n\t}}\n"
+        ral = f"\tfield {self.get_field_name()} {{\n\t\tbits {self.get_bit_range()};\n\t\taccess {self.get_access()};\n\t\treset {self.get_reset()};\n\t}}\n"
         return ral
