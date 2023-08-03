@@ -1,10 +1,10 @@
 import sys
-from base.const import *
+from base.macro import *
 
 class Field:
     def __init__(self, name):
         self.__name   = name
-        self.__bits   = []
+        self.__bits   = [0, 0]
         self.__access = "rw"
         self.__reset  = "1'b0"
         self.__desc   = ""
@@ -35,11 +35,11 @@ class Field:
     # ================ access ================ #
     def set_access(self, access):
         l_access = access.lower()
-        if l_access in ACCESS_LIST:
+        if l_access in ACCESS_OPTIONS:
             self.__access = l_access
             return
         else:
-            print(f"[Error] invalid value {access} for {self.get_field_name()}.access, please check!")
+            print(f"[Error] unrecognized value \"{access}\" for {self.get_field_name()}.access, please check!")
             sys.exit()
     
     def get_access(self):
@@ -59,9 +59,7 @@ class Field:
     def get_desc(self):
         return self.__desc
 
-    def print(self):
-        print(f"field {self.get_field_name()} {{\n\tbits {self.get_bit_range()}\n\taccess {self.get_access()}\n\treset {self.get_reset()}\n}}")
-
-    def gen_ral(self):
-        ral = f"\tfield {self.get_field_name()} {{\n\t\tbits {self.get_bit_range()};\n\t\taccess {self.get_access()};\n\t\treset {self.get_reset()};\n\t}}\n"
+    # ================ generate ralf code ================ #
+    def gen_ralf_code(self):
+        ral = f"\tfield {self.__name} {{\n\t\tbits {self.get_bit_range()};\n\t\taccess {self.__access};\n\t\treset {self.__reset};\n\t}}\n"
         return ral

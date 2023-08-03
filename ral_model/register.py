@@ -1,11 +1,14 @@
 import sys
-from base.const import *
+import re
+from base.macro import *
+from base.enum import *
 from ral_model.field import Field
 
 class Register:
     def __init__(self, name):
         self.__name       = name
-        self.__site       = 0
+        self.__type       = StorageType.REG
+        self.__size       = 1
         self.__offset     = "\'h0"
         self.__width      = 32
         self.__field_list = []
@@ -31,10 +34,24 @@ class Register:
 
     # ================ width ================ #
     def set_width(self, width):
-        self.__width = width            
+        self.__width = width
 
     def get_width(self):
         return self.__width
+
+    # ================ type ================ #
+    def set_reg_type(self, type):
+        self.__type = type
+
+    def get_reg_type(self):
+        return self.__type
+    
+    # ================ size ================ #
+    def set_reg_size(self, size):
+        self.__size = size
+
+    def get_reg_size(self):
+        return self.__size
 
     def append_field(self, field):
         if isinstance(field, Field):
@@ -49,18 +66,15 @@ class Register:
             print("[Error] invalid field object, please check!")
         sys.exit()
 
-    def is_empty(self):
-        return len(self.__field_list) == 0
-    
     def has_field(self, name):
         for f in self.__field_list:
             if f.get_field_name() == name:
                 return True
         return False
 
-    def gen_ral(self):
-        ral = f"register {self.get_reg_name()} {{\n"
+    def gen_ralf_code(self):
+        ral = f"register {self.__name} {{\n"
         for f in self.__field_list:
-            ral += f.gen_ral()
+            ral += f.gen_ralf_code()
         ral += "}\n\n"
         return ral
