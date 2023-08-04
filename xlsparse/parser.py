@@ -33,14 +33,12 @@ class XlsParser:
         else:
             print(f"[Info] {file_name} will be parsed.")
         
-        sheet_names = xls.sheet_names()
-        for n in xls.sheet_names():
-            if re.match(SHEET_PATTERN, n):
-                self.__table = xls.sheet_by_name(n)
-                return
-
-        print("[Error] cannot find target sheet, please check!")
-        sys.exit()
+        sheet_name = f"{self.__module_name}_module_reg_spec"
+        if sheet_name in xls.sheet_names():
+            self.__table = xls.sheet_by_name(sheet_name)
+        else:
+            print(f"[Error] cannot find target sheet {sheet_name}, please check!")
+            sys.exit()
 
     def __parse_base_addr(self, row):
         col  = TableHeader.BASEADDRESS.value

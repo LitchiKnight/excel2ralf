@@ -11,7 +11,6 @@ VALID_WIDTH = [8, 16, 32]
 
 # patterns
 FILE_NAME_PATTERN    = "^[a-zA-Z0-9]+_project_[a-zA-Z0-9]+_module_reg_spec.xls(x?)$"
-SHEET_PATTERN        = "^[a-zA-Z0-9_]+_reg_spec$"
 BASE_ADDR_PATTERN    = "^(0x|0X)[a-fA-F0-9]{8}$"
 TYPE_PATTERN         = "^reg$|^mem$"
 OFFSET_PATTERN       = "^(0x|0X)[a-fA-F0-9]{1,8}$"
