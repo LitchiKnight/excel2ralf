@@ -1,7 +1,6 @@
 import argparse
 import sys
 import os
-sys.path.append(r'..\xls2ralf')
 import re
 from xlsparse.parser import XlsParser
 from base.macro import *

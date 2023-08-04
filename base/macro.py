@@ -1,8 +1,8 @@
 # field access options
 ACCESS_OPTIONS = [
-    "rw", "ro", "wo", "w1", "w1c", "rc", "rs",
-    "wrc", "wrs", "wc", "ws", "wsrc", "wcrs", "w1s",
-    "w1t", "w0c", "w0s", "w0t", "w1src", "w1crs", "w0src",
+    "rw", "ro", "wo", "w1", "w1c", "rc", "rs", "wrc",
+    "wrs", "wc", "ws", "wsrc", "wcrs", "w1s", "w1t",
+    "w0c", "w0s", "w0t", "w1src", "w1crs", "w0src",
     "w0crs", "woc", "wos", "wo1"
 ]
 
