@@ -18,7 +18,7 @@ class XlsParser:
 
     def __parse_file_name(self, file_name):
         if re.match(FILE_NAME_PATTERN, file_name):
-            self.__module_name = file_name.split("_")[2]
+            self.__module_name = file_name.split("_project_")[1].split("_module_")[0]
         else:
             self.__module_name = DEFAULT_BLOCK_NAME
 
