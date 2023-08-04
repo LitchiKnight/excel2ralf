@@ -19,7 +19,6 @@ def main():
         full_path = os.path.abspath(args.file)
         dir_path  = os.path.dirname(full_path)
         file_name = os.path.basename(full_path)
-        os.chdir(dir_path)
     else:
         print(f"[Error] input file {args.file} dosen't exist, please check!")
         sys.exit()
@@ -30,6 +29,7 @@ def main():
         print(f"[Error] output path {args.output} dosen't exist, please check!")
         sys.exit()
 
+    os.chdir(dir_path)
     xls_parser = XlsParser()
     xls_parser.parse_xls(file_name)
     ral = xls_parser.get_ral()
