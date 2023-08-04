@@ -35,7 +35,7 @@ def main():
     ral = xls_parser.get_ral()
 
     if re.match(FILE_NAME_PATTERN, file_name):
-        module_name = file_name.split("_")[2]
+        module_name = file_name.split("_project_")[1].split("_module_")[0]
         ralf_name = f"{module_name}.ralf"
     else:
         ralf_name = f"{DEFAULT_BLOCK_NAME}.ralf"
