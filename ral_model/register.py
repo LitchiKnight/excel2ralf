@@ -74,7 +74,7 @@ class Register:
 
     def gen_ralf_code(self):
         ral = f"register {self.__name} {{\n"
-        for f in self.__field_list:
+        for f in reversed(self.__field_list):
             ral += f.gen_ralf_code()
         ral += "}\n\n"
         return ral

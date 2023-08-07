@@ -86,12 +86,12 @@ class Block:
         for base_addr, reg_list in self.__reg_map.items():
             for reg in reg_list:
                 if reg.get_reg_type() == StorageType.REG:
-                    ral += f"\tregister {reg.get_reg_name()} @{self.__get_real_addr(base_addr, reg.get_offset())};\n"
+                    ral += f"\tregister {reg.get_reg_name()} ({reg.get_reg_name()}) @{self.__get_real_addr(base_addr, reg.get_offset())};\n"
                 elif reg.get_reg_type() == StorageType.REG_ARRAY:
-                    ral += f"\tregister {reg.get_reg_name()}[{reg.get_reg_size()}] @{self.__get_real_addr(base_addr, reg.get_offset())};\n"
+                    ral += f"\tregister {reg.get_reg_name()}[{reg.get_reg_size()}] ({reg.get_reg_name()}[%d]) @{self.__get_real_addr(base_addr, reg.get_offset())};\n"
         for base_addr, mem_list in self.__mem_map.items():
             for mem in mem_list:
-                ral += f"\tmemory {mem.get_mem_name()} @{self.__get_real_addr(base_addr, mem.get_offset())};\n"
+                ral += f"\tmemory {mem.get_mem_name()} ({mem.get_mem_name()}) @{self.__get_real_addr(base_addr, mem.get_offset())};\n"
         ral += "}\n"
         return ral
             
