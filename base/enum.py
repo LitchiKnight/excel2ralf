@@ -2,8 +2,9 @@ from enum import Enum
 
 # storage type
 class StorageType(Enum):
+    NONE      = 0
     REG       = 1
-    REG_ARRAY = 2
+    REG_ARR   = 2
     MEM       = 3
 
 class TableHeader(Enum):
@@ -20,7 +21,8 @@ class TableHeader(Enum):
 
 class ParserState(Enum):
     IDLE        = 0
-    PARSE_REG   = 1
-    PARSE_MEM   = 2
-    PARSE_FIELD = 3
-    END         = 4
+    PARSE_BLOCK = 1
+    PARSE_REG   = 2
+    PARSE_MEM   = 3
+    PARSE_FIELD = 4
+    END         = 5

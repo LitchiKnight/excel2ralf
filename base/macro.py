@@ -22,5 +22,5 @@ ACCESS_PATTERN       = "^[a-zA-Z0-9]+$"
 RESET_PATTERN        = "(^[1-9]+[0-9]*\'b[0-1]+$)|(^[1-9]+[0-9]*\'h[a-fA-F0-9]+$)"
 
 # default value
-DEFAULT_BLOCK_NAME = "reg_model"
-DEFAULT_BLOCK_BYTES = 4
+DEFAULT_BYTES = 4
+DEFAULT_WIDTH = 32
