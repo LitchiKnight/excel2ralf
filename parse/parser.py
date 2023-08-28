@@ -339,6 +339,20 @@ class ExcelParser:
             if row == table.nrows:
                 state = ParserState.END
 
+    def __adapt_block_name(self):
+        def do_rename(block):
+            block_name = block.get_name()
+            base_addr  = block.get_base_addr()
+            base_addr  = base_addr.replace("\'h", "0x")
+            block.rename_block(f"{block_name}_{base_addr}")
+
+        for block in self.__block_list:
+            block_name = block.get_name()
+            filter_list = list(filter(lambda b: b.get_name() == block_name, self.__block_list))
+            if len(filter_list) > 1:
+                for item in filter_list:
+                    do_rename(item)
+
     # ================ public functions ================ #
     def set_project_name(self, name):
         self.__project_name = name
@@ -376,24 +390,18 @@ class ExcelParser:
 
     def parse_multi_files(self, path):
         file_list = os.listdir(path)
-        print(file_list)
         for f_name in file_list:
             self.parse_single_file(os.path.join(path, f_name))
 
     def gen_module_ralf(self):
-        if len(self.__block_list):
-            for block in self.__block_list:
-                base_addr = block.get_base_addr()
-                base_addr = base_addr.replace("\'h", "0x")
-                block_name = block.get_name()
-                block.rename_block(f"{block_name}_{base_addr}")
-                self.__ral_list.setdefault(base_addr, block.gen_ralf_code())
-        else:
-            block = self.__block_list[0]
-            self.__ral_list.setdefault(base_addr, block.gen_ralf_code()) 
+        self.__adapt_block_name()
+        for block in self.__block_list:
+            base_addr = block.get_base_addr()
+            self.__ral_list.setdefault(base_addr, block.gen_ralf_code())
 
     def gen_system_ralf(self):
         system = System(self.get_project_name())
+        self.__adapt_block_name()
         for block in self.__block_list:
             system.append_block(block)
         self.__ral_list.setdefault("\'h0", system.gen_ralf_code())
