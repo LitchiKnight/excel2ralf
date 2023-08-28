@@ -353,38 +353,50 @@ class ExcelParser:
         return self.__module_name
 
     def parse_single_file(self, path):
+        cwd = os.getcwd()
         abs = os.path.abspath(path)
         dir = os.path.dirname(abs)
         f_name = os.path.basename(abs)
-        os.chdir(dir)
 
+        os.chdir(dir)
+        if not re.match(FILE_NAME_PATTERN, f_name):
+            print(f"[Error] invalid file name \'{f_name}\', it must be like \"xxx_project_xxx_module_reg_spec.xls(.xlsx)\", please check!")
+            sys.exit()
         p_name, m_name = self.__parse_file_name(f_name)
+        if self.get_project_name() == "":
+            self.set_project_name(p_name)
+        elif not self.get_project_name() == p_name:
+            print(f"[Error] project name conflict in \'{dir}\', please check!")
+            sys.exit()        
         self.set_project_name(p_name)
         self.set_module_name(m_name)
         self.__parse_excel(f_name)
         self.__parse_table()
-        for block in self.__block_list:
-            base_addr = block.get_base_addr()
-            self.__ral_list.setdefault(base_addr, block.gen_ralf_code())
+        os.chdir(cwd)
 
     def parse_multi_files(self, path):
-         os.chdir(path)
-         file_list = os.listdir()
-         for f_name in file_list:
-            if re.match(FILE_NAME_PATTERN, f_name):
-                p_name, m_name = self.__parse_file_name(f_name)
-                if self.get_project_name() == "":
-                    self.set_project_name(p_name)
-                elif not self.get_project_name() == p_name:
-                    print(f"[Error] more than one project name in register excel files, please check!")
-                    sys.exit()
-                self.set_module_name(m_name)
-                self.__parse_excel(f_name)
-                self.__parse_table()
-                system = System(self.get_project_name())
-                for block in self.__block_list:
-                    system.append_block(block)
-                self.__ral_list.setdefault("\'h0", system.gen_ralf_code())
-    
+        file_list = os.listdir(path)
+        print(file_list)
+        for f_name in file_list:
+            self.parse_single_file(os.path.join(path, f_name))
+
+    def gen_module_ralf(self):
+        if len(self.__block_list):
+            for block in self.__block_list:
+                base_addr = block.get_base_addr()
+                base_addr = base_addr.replace("\'h", "0x")
+                block_name = block.get_name()
+                block.rename_block(f"{block_name}_{base_addr}")
+                self.__ral_list.setdefault(base_addr, block.gen_ralf_code())
+        else:
+            block = self.__block_list[0]
+            self.__ral_list.setdefault(base_addr, block.gen_ralf_code()) 
+
+    def gen_system_ralf(self):
+        system = System(self.get_project_name())
+        for block in self.__block_list:
+            system.append_block(block)
+        self.__ral_list.setdefault("\'h0", system.gen_ralf_code())
+
     def get_ralf(self):
         return self.__ral_list

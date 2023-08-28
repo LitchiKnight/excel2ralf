@@ -12,6 +12,9 @@ class Block:
         self.__item_list = []
 
     # ================ name ================ #
+    def rename_block(self, name):
+        self.__name = name
+
     def get_name(self):
         return self.__name
 

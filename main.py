@@ -13,7 +13,7 @@ def main():
     arg_parser.add_argument('-f', '--file',
                             type=str, default='',
                             help="specify a register Excel file to be converted")
-    arg_parser.add_argument('-d', '--dirc',
+    arg_parser.add_argument('-d', '--dir',
                             type=str, default='',
                             help="specify a directory which contents register Excel files")
     arg_parser.add_argument('-o', '--output',
@@ -25,12 +25,12 @@ def main():
 
     if args.s: # system level
         try:
-            if not args.dirc:
+            if not args.dir:
                 raise Exception("[Error] in system mode, must support register excel directory, please check!")
-            elif not os.path.lexists(args.dirc):
-                raise Exception(f"[Error] {args.dirc} dosen't exist, please check!")
-            elif not len(os.listdir()):
-                raise Exception(f"[Error] {args.dirc} is empty, please check!")
+            if not os.path.lexists(args.dir):
+                raise Exception(f"[Error] {args.dir} dosen't exist, please check!")
+            if not len(os.listdir()):
+                raise Exception(f"[Error] {args.dir} is empty, please check!")
         except Exception as e:
             print(e)
             sys.exit()
@@ -38,10 +38,8 @@ def main():
         try:
             if not args.file:
                 raise Exception("[Error] in module mode, must support register excel file, please check!")
-            elif not os.path.exists(args.file):
+            if not os.path.exists(args.file):
                 raise Exception(f"[Error] {args.file} dosen't exist, please check!")
-            elif not re.match(FILE_NAME_PATTERN, args.file):
-                raise Exception("[Error] invalid file name, it must be like \"xxx_project_xxx_module_reg_spec.xls(.xlsx)\", please check!")
         except Exception as e:
             print(e)
             sys.exit()
@@ -55,9 +53,11 @@ def main():
     # start parse execel
     excel_parser = ExcelParser()
     if args.s:
-        excel_parser.parse_multi_files(args.dirc)
+        excel_parser.parse_multi_files(args.dir)
+        excel_parser.gen_system_ralf()
     else:
         excel_parser.parse_single_file(args.file)
+        excel_parser.gen_module_ralf()
     ralf = excel_parser.get_ralf()
 
     projetc_name = excel_parser.get_project_name()
