@@ -2,50 +2,49 @@ import argparse
 import sys
 import os
 import re
-from xlsparse.parser import XlsParser
+from parse.parser import ExcelParser
 from base.macro import *
 
 def main():
-    arg_parser = argparse.ArgumentParser(description='xls2ralf script')
-    arg_parser.add_argument('-m', '--mode',
-                            type=str, default="module",
-                            help="script mode, module or system")
+    arg_parser = argparse.ArgumentParser(description='excel2ralf script')
+
+    arg_parser.add_argument('-s', action='store_true', default=False,
+                            help="generate ralf file in system level")
     arg_parser.add_argument('-f', '--file',
                             type=str, default='',
-                            help="register execl file")
+                            help="specify a register Excel file to be converted")
     arg_parser.add_argument('-d', '--dirc',
                             type=str, default='',
-                            help="register execl dictionary")
+                            help="specify a directory which contents register Excel files")
     arg_parser.add_argument('-o', '--output',
                             type=str, default='.',
-                            help="ralf file output path")
+                            help="the output path of the converted ralf file")
 
     args = arg_parser.parse_args()
+    
 
-    # parament check
-    if args.mode == "module":
-        if not args.file:
-            print("[Error] in module mode, must support register execl file, please check!")
+    if args.s: # system level
+        try:
+            if not args.dirc:
+                raise Exception("[Error] in system mode, must support register execl dictionary, please check!")
+            elif not os.path.lexists(args.dirc):
+                raise Exception(f"[Error] {args.dirc} dosen't exist, please check!")
+            elif not len(os.listdir()):
+                raise Exception(f"[Error] {args.dirc} is empty, please check!")
+        except Exception as e:
+            print(e)
             sys.exit()
-        elif not os.path.exists(args.file):
-            print(f"[Error] {args.file} dosen't exist, please check!")
+    else: # module level
+        try:
+            if not args.file:
+                raise Exception("[Error] in module mode, must support register execl file, please check!")
+            elif not os.path.exists(args.file):
+                raise Exception(f"[Error] {args.file} dosen't exist, please check!")
+            elif not re.match(FILE_NAME_PATTERN, args.file):
+                raise Exception("[Error] invalid file name, it must be like \"xxx_project_xxx_module_reg_spec.xls(.xlsx)\", please check!")
+        except Exception as e:
+            print(e)
             sys.exit()
-        elif not re.match(FILE_NAME_PATTERN, args.file):
-            print("[Error] invalid file name, it must be like \"xxx_project_xxx_module_reg_spec.xls(.xlsx)\", please check!")
-            sys.exit()
-    elif args.mode == "system":
-        if not args.dirc:
-            print("[Error] in system mode, must support register execl dictionary, please check!")
-            sys.exit()            
-        elif not os.path.lexists(args.dirc):
-            print(f"[Error] {args.dirc} dosen't exist, please check!")
-            sys.exit()
-        elif not len(os.listdir()):
-            print(f"[Error] {args.dirc} is empty, please check!")
-            sys.exit()
-    else:
-        print(f"[Error] Unrecognized mode \"{args.mode}\", please check!")
-        sys.exit()
 
     if os.path.lexists(args.output):
         output_path = os.path.abspath(args.output)
@@ -54,16 +53,16 @@ def main():
         sys.exit()
 
     # start parse execel
-    xls_parser = XlsParser()
-    if args.mode == "module":
-        xls_parser.parse_xls(args.mode, args.file)
+    excel_parser = ExcelParser()
+    if args.s:
+        excel_parser.parse_multi_files(args.dirc)
     else:
-        xls_parser.parse_xls(args.mode, args.dirc)
-    ralf = xls_parser.get_ralf()
+        excel_parser.parse_single_file(args.file)
+    ralf = excel_parser.get_ralf()
 
-    projetc_name = xls_parser.get_project_name()
-    module_name = xls_parser.get_module_name()
-    ralf_name = f"{module_name}.ralf" if args.mode == "module" else f"{projetc_name}.ralf"
+    projetc_name = excel_parser.get_project_name()
+    module_name = excel_parser.get_module_name()
+    ralf_name = f"{projetc_name}.ralf" if args.s else f"{module_name}.ralf"
 
     for base_addr, ral_code in ralf.items():
         if len(ralf) > 1:
@@ -74,6 +73,6 @@ def main():
         with open(f"{output_path}\{temp_name}", "w") as f:
             f.write(ral_code)
 
-    print(f"[Info] ralf file is already output to {os.path.abspath(output_path)}, please confirm.")
+    print(f"[Info] ralf file already output to {os.path.abspath(output_path)}, please confirm.")
 
 main()

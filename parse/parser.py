@@ -12,7 +12,7 @@ from ral_model.memory import Memory
 from ral_model.block import Block
 from ral_model.system import System
  
-class XlsParser:
+class ExcelParser:
     def __init__(self):
         self.__table       = None
         self.__project_name = ""
@@ -20,25 +20,23 @@ class XlsParser:
         self.__block_list  = []
         self.__ral_list    = {}
 
-    def __parse_file_name(self, file_name):
-        projetc_name = file_name.split("_project_")[0]
-        module_name = file_name.split("_project_")[1].split("_module_")[0]
-        return projetc_name, module_name
+    def __parse_file_name(self, name):
+        p_name = name.split("_project_")[0]
+        m_name = name.split("_project_")[1].split("_module_")[0]
+        return p_name, m_name
 
-    def __parse_xls(self, file_name):
-        print(f"[Info] start convert {file_name}.")
+    def __parse_excel(self, f_name):
+        print(f"[Info] start convert {f_name}.")
         # try opening source file
         try:
-            xls = xlrd.open_workbook(file_name)
+            excel = xlrd.open_workbook(f_name)
         except:
-            print(f"[Error] cannot open {file_name}, please check!")
+            print(f"[Error] cannot open {f_name}, please check!")
             sys.exit()
-        else:
-            print(f"[Info] {file_name} will be parsed.")
         
         sheet_name = f"{self.__module_name}_module_reg_spec"
-        if sheet_name in xls.sheet_names():
-            self.__table = xls.sheet_by_name(sheet_name)
+        if sheet_name in excel.sheet_names():
+            self.__table = excel.sheet_by_name(sheet_name)
         else:
             print(f"[Error] cannot find target sheet {sheet_name}, please check!")
             sys.exit()
@@ -50,7 +48,7 @@ class XlsParser:
         addr = str(addr).strip()
 
         if addr and not re.match(BASE_ADDR_PATTERN, addr):
-            print(f"[Error] line {row}: invalid BaseAddress value {addr}, please check!")
+            print(f"[Error] line{row+1}: invalid BaseAddress value {addr}, please check!")
             sys.exit()
         else:
             return addr
@@ -61,7 +59,7 @@ class XlsParser:
         type = str(type).strip()
 
         if type and not re.match(TYPE_PATTERN, type):
-            print(f"[Error] line {row}: invalid Type value {type}, please check!")
+            print(f"[Error] line{row+1}: invalid Type value {type}, please check!")
             sys.exit()
         else:
             return type
@@ -72,7 +70,7 @@ class XlsParser:
         offset = str(offset).strip()
 
         if offset and not re.match(OFFSET_PATTERN, offset):
-            print(f"[Error] line {row}: invalid OffsetAddress value {offset}, please check!")
+            print(f"[Error] line{row+1}: invalid OffsetAddress value {offset}, please check!")
             sys.exit()
         else:
             return offset
@@ -85,11 +83,11 @@ class XlsParser:
             if i_width == width:
                 width = str(i_width)
             else:
-                print(f"[Error] line {row}: invalid Width value {width}, please check!")
+                print(f"[Error] line{row+1}: invalid Width value {width}, please check!")
                 sys.exit()
         width = width.strip()
         if width and not re.match(WIDTH_PATTERN, width):
-            print(f"[Error] line {row}: invalid Width value {width}, please check!")
+            print(f"[Error] line{row+1}: invalid Width value {width}, please check!")
             sys.exit()
         else:
             return width
@@ -100,7 +98,7 @@ class XlsParser:
         reg_name = str(reg_name).strip()
 
         if reg_name and not re.match(NAME_PATTERN, reg_name):
-            print(f"[Error] line {row}: invalid regName value {reg_name}, please check!")
+            print(f"[Error] line{row+1}: invalid regName value {reg_name}, please check!")
             sys.exit()
         else:
             return reg_name
@@ -111,7 +109,7 @@ class XlsParser:
         field_name = str(field_name).strip()
 
         if field_name and not re.match(NAME_PATTERN, field_name):
-            print(f"[Error] line {row}: invalid regName value {field_name}, please check!")
+            print(f"[Error] line{row+1}: invalid regName value {field_name}, please check!")
             sys.exit()
         else:
             return field_name
@@ -122,7 +120,7 @@ class XlsParser:
         bits = str(bits).strip()
 
         if bits and not re.match(BITS_PATTERN, bits):
-            print(f"[Error] line {row}: invalid Bits value {bits}, please check!")
+            print(f"[Error] line{row+1}: invalid Bits value {bits}, please check!")
             sys.exit()
         else:
             return bits
@@ -133,7 +131,7 @@ class XlsParser:
         access = str(access).strip()
 
         if access and not re.match(ACCESS_PATTERN, access):
-            print(f"[Error] line {row}: invalid Access value {access}, please check!")
+            print(f"[Error] line{row+1}: invalid Access value {access}, please check!")
             sys.exit()
         else:
             return access
@@ -144,7 +142,7 @@ class XlsParser:
         reset = str(reset).strip()
 
         if reset and not re.match(RESET_PATTERN, reset):
-            print(f"[Error] line {row}: invalid ResetValue value {reset}, please check!")
+            print(f"[Error] line{row+1}: invalid ResetValue value {reset}, please check!")
             sys.exit()
         else:
             return reset
@@ -173,13 +171,17 @@ class XlsParser:
 
     def __parse_reg(self, row):
         reg_name = self.__parse_reg_name(row)
-        offset = self.__parse_offset(row)
-        if not offset:
-            print(f"[Error] OffsetAddress of register {reg_name} cannot be empty, please check!")
-            sys.exit()
-        width = self.__parse_width(row)
-        if not width:
-            print(f"[Error] Width of register {reg_name} cannot be empty, please check!")
+        offset   = self.__parse_offset(row)
+        width    = self.__parse_width(row)
+
+        # register property check
+        try:
+            if not offset:
+                raise Exception(f"[Error] OffsetAddress of register {reg_name} cannot be empty, please check!")
+            if not width:
+                raise Exception(f"[Error] Width of register {reg_name} cannot be empty, please check!")
+        except Exception as e:
+            print(e)
             sys.exit()
 
         reg = None
@@ -197,21 +199,26 @@ class XlsParser:
 
     def __parse_field(self, row, reg_name):
         field_name = self.__parse_field_name(row)
-        bits = self.__parse_bits(row)
-        if not bits:
-            print(f"[Error] Bits of {reg_name}.{field_name} cannot be empty, please check!")
-            sys.exit()
-        bits = self.__formatting_bits(bits)
-        access = self.__parse_access(row)
-        if not access:
-            print(f"[Error] Access of {reg_name}.{field_name} cannot be empty, please check!")
-            sys.exit()
-        reset = self.__parse_reset(row)
-        if not reset:
-            print(f"[Error] ResetValue of {reg_name}.{field_name} cannot be empty, please check!")
-            sys.exit()
+        bits       = self.__parse_bits(row)
+        access     = self.__parse_access(row)
+        reset      = self.__parse_reset(row)
 
+        # field property check
+        try:
+            if not field_name:
+                raise Exception(f"[Error] line{row+1}: occur an empty FieldName, please check!")
+            if not bits:
+                raise Exception(f"[Error] Bits of {reg_name}.{field_name} cannot be empty, please check!")
+            if not access:
+                raise Exception(f"[Error] Access of {reg_name}.{field_name} cannot be empty, please check!")
+            if not reset:
+                raise Exception(f"[Error] ResetValue of {reg_name}.{field_name} cannot be empty, please check!")
+        except Exception as e:
+            print(e)
+            sys.exit()
+        
         field = Field(field_name)
+        bits = self.__formatting_bits(bits)
         field.set_bits(bits)
         field.set_access(access)
         field.set_reset(reset)
@@ -220,28 +227,29 @@ class XlsParser:
 
     def __parse_mem(self, row):
         mem_name = self.__parse_reg_name(row)
-        offset = self.__parse_offset(row)
-        if not offset:
-            print(f"[Error] OffsetAddress of memory {mem_name} cannot be empty, please check!")
-            sys.exit()
-        width = self.__parse_width(row)
-        if not width:
-            print(f"[Error] Width of memory {mem_name} cannot be empty, please check!")
-            sys.exit()
-        bits = self.__parse_bits(row)
-        if not bits:
-            print(f"[Error] Bits of memory {mem_name} cannot be empty, please check!")
-            sys.exit()
-        bits = self.__formatting_bits(bits)
-        access = self.__parse_access(row)
-        if not access:
-            print(f"[Error] Access of memory {mem_name} cannot be empty, please check!")
+        offset   = self.__parse_offset(row)
+        width    = self.__parse_width(row)
+        bits     = self.__parse_bits(row)
+        access   = self.__parse_access(row)
+
+        try:
+            if not offset:
+                raise Exception(f"[Error] OffsetAddress of memory {mem_name} cannot be empty, please check!")
+            if not width:
+                raise Exception(f"[Error] Width of memory {mem_name} cannot be empty, please check!")
+            if not bits:
+                raise Exception(f"[Error] Bits of memory {mem_name} cannot be empty, please check!")
+            if not access:
+                raise Exception(f"[Error] Access of memory {mem_name} cannot be empty, please check!")
+        except Exception as e:
+            print(e)
             sys.exit()
 
         mem = Memory(mem_name)
         mem.set_offset(self.__format_addr(offset))
         mem.set_width(int(width.split("*")[0]))
         mem.set_size(width.split("*")[1])
+        bits = self.__formatting_bits(bits)
         mem.set_bits(bits)
         mem.set_access(access)
 
@@ -331,53 +339,52 @@ class XlsParser:
             if row == table.nrows:
                 state = ParserState.END
 
+    # ================ public functions ================ #
+    def set_project_name(self, name):
+        self.__project_name = name
+
     def get_project_name(self):
         return self.__project_name
 
     def set_module_name(self, name):
-        if isinstance(name, str):
-            self.__module_name = name
-        else:
-            print("[Error] module name must be string, please check!")
+        self.__module_name = name
 
     def get_module_name(self):
         return self.__module_name
 
-    def parse_xls(self, mode, path):
+    def parse_single_file(self, path):
+        abs = os.path.abspath(path)
+        dir = os.path.dirname(abs)
+        f_name = os.path.basename(abs)
+        os.chdir(dir)
 
-        if mode == "module":
-            abs_path = os.path.abspath(path)
-            dir = os.path.dirname(abs_path)
-            file_name = os.path.basename(abs_path)
-            os.chdir(dir)
+        p_name, m_name = self.__parse_file_name(f_name)
+        self.set_project_name(p_name)
+        self.set_module_name(m_name)
+        self.__parse_excel(f_name)
+        self.__parse_table()
+        for block in self.__block_list:
+            base_addr = block.get_base_addr()
+            self.__ral_list.setdefault(base_addr, block.gen_ralf_code())
 
-            projetc_name, module_name = self.__parse_file_name(file_name)
-            self.__module_name = module_name
-            self.__parse_xls(file_name)
-            self.__parse_table()
-            for block in self.__block_list:
-                base_addr = block.get_base_addr()
-                self.__ral_list.setdefault(base_addr, block.gen_ralf_code())
-        if mode == "system":
-            os.chdir(path)
-            file_list = os.listdir()
-            for file_name in file_list:
-                if re.match(FILE_NAME_PATTERN, file_name):
-                    projetc_name, module_name = self.__parse_file_name(file_name)
-                    if self.__project_name == "":
-                        self.__project_name = projetc_name
-                    elif not self.__projetc_name == projetc_name:
-                        print(f"[Error] more than one project name in register excel files, please check!")
-                        sys.exit()
-                    self.__module_name = module_name
-                    self.__parse_xls(file_name)
-                    self.__parse_table()
-            system = System(self.__project_name)
-            for block in self.__block_list:
-                system.append_block(block)
-            self.__ral_list.setdefault("\'h0", system.gen_ralf_code())
-
-        print(f"[Info] {self.__module_name} module register ralf file convert done.")
+    def parse_multi_files(self, path):
+         os.chdir(path)
+         file_list = os.listdir()
+         for f_name in file_list:
+            if re.match(FILE_NAME_PATTERN, f_name):
+                p_name, m_name = self.__parse_file_name(f_name)
+                if self.get_project_name() == "":
+                    self.set_project_name(p_name)
+                elif not self.get_project_name() == p_name:
+                    print(f"[Error] more than one project name in register excel files, please check!")
+                    sys.exit()
+                self.set_module_name(m_name)
+                self.__parse_excel(f_name)
+                self.__parse_table()
+                system = System(self.get_project_name())
+                for block in self.__block_list:
+                    system.append_block(block)
+                self.__ral_list.setdefault("\'h0", system.gen_ralf_code())
     
     def get_ralf(self):
         return self.__ral_list
