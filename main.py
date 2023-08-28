@@ -26,7 +26,7 @@ def main():
     if args.s: # system level
         try:
             if not args.dirc:
-                raise Exception("[Error] in system mode, must support register execl dictionary, please check!")
+                raise Exception("[Error] in system mode, must support register excel directory, please check!")
             elif not os.path.lexists(args.dirc):
                 raise Exception(f"[Error] {args.dirc} dosen't exist, please check!")
             elif not len(os.listdir()):
@@ -37,7 +37,7 @@ def main():
     else: # module level
         try:
             if not args.file:
-                raise Exception("[Error] in module mode, must support register execl file, please check!")
+                raise Exception("[Error] in module mode, must support register excel file, please check!")
             elif not os.path.exists(args.file):
                 raise Exception(f"[Error] {args.file} dosen't exist, please check!")
             elif not re.match(FILE_NAME_PATTERN, args.file):
