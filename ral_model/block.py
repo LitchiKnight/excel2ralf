@@ -25,6 +25,14 @@ class Block:
     def get_bytes(self):
         return self.__bytes
 
+    def adapt_bytes(self):
+        bytes = 0
+        for item in self.__item_list:
+            width = item.get_width()
+            if int(width)//8 > bytes:
+                bytes = int(width)//8
+        self.set_bytes(bytes)
+
     # ================ base address ================ #
     def set_base_addr(self, addr):
         self.__base_addr = addr

@@ -15,15 +15,9 @@ from ral_model.system import System
 class ExcelParser:
     def __init__(self):
         self.__table       = None
-        self.__project_name = ""
         self.__module_name = ""
         self.__block_list  = []
         self.__ral_list    = {}
-
-    def __parse_file_name(self, name):
-        p_name = name.split("_project_")[0]
-        m_name = name.split("_project_")[1].split("_module_")[0]
-        return p_name, m_name
 
     def __parse_excel(self, f_name):
         print(f"[Info] start convert {f_name}.")
@@ -33,13 +27,10 @@ class ExcelParser:
         except:
             print(f"[Error] cannot open {f_name}, please check!")
             sys.exit()
-        
-        sheet_name = f"{self.__module_name}_module_reg_spec"
-        if sheet_name in excel.sheet_names():
-            self.__table = excel.sheet_by_name(sheet_name)
-        else:
-            print(f"[Error] cannot find target sheet {sheet_name}, please check!")
-            sys.exit()
+
+        self.__table = excel.sheets()[1]
+        module_name = excel.sheet_names()[1]
+        self.set_module_name(module_name)
 
     # ================ parse table items ================ #
     def __parse_base_addr(self, row):
@@ -354,12 +345,6 @@ class ExcelParser:
                     do_rename(item)
 
     # ================ public functions ================ #
-    def set_project_name(self, name):
-        self.__project_name = name
-
-    def get_project_name(self):
-        return self.__project_name
-
     def set_module_name(self, name):
         self.__module_name = name
 
@@ -374,16 +359,8 @@ class ExcelParser:
 
         os.chdir(dir)
         if not re.match(FILE_NAME_PATTERN, f_name):
-            print(f"[Error] invalid file name \'{f_name}\', it must be like \"xxx_project_xxx_module_reg_spec.xls(.xlsx)\", please check!")
+            print(f"[Error] invalid file name \'{f_name}\', it must be .xls or .xlsx file, please check!")
             sys.exit()
-        p_name, m_name = self.__parse_file_name(f_name)
-        if self.get_project_name() == "":
-            self.set_project_name(p_name)
-        elif not self.get_project_name() == p_name:
-            print(f"[Error] project name conflict in \'{dir}\', please check!")
-            sys.exit()        
-        self.set_project_name(p_name)
-        self.set_module_name(m_name)
         self.__parse_excel(f_name)
         self.__parse_table()
         os.chdir(cwd)
@@ -396,13 +373,15 @@ class ExcelParser:
     def gen_module_ralf(self):
         self.__adapt_block_name()
         for block in self.__block_list:
+            block.adapt_bytes()
             base_addr = block.get_base_addr()
             self.__ral_list.setdefault(base_addr, block.gen_ralf_code())
 
     def gen_system_ralf(self):
-        system = System(self.get_project_name())
+        system = System(DEFAULT_SYSTEM_NAME)
         self.__adapt_block_name()
         for block in self.__block_list:
+            block.adapt_bytes()
             system.append_block(block)
         self.__ral_list.setdefault("\'h0", system.gen_ralf_code())
 

@@ -60,9 +60,8 @@ def main():
         excel_parser.gen_module_ralf()
     ralf = excel_parser.get_ralf()
 
-    projetc_name = excel_parser.get_project_name()
     module_name = excel_parser.get_module_name()
-    ralf_name = f"{projetc_name}.ralf" if args.s else f"{module_name}.ralf"
+    ralf_name = f"{DEFAULT_SYSTEM_NAME}.ralf" if args.s else f"{module_name}.ralf"
 
     for base_addr, ral_code in ralf.items():
         if len(ralf) > 1:

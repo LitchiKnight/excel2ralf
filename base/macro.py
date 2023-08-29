@@ -10,8 +10,8 @@ ACCESS_OPTIONS = [
 VALID_WIDTH = [8, 16, 32]
 
 # patterns
-FILE_NAME_PATTERN    = "^[a-zA-Z0-9]+_project_[a-zA-Z0-9]+_module_reg_spec.xls(x?)$"
-BASE_ADDR_PATTERN    = "^(0x|0X)[a-fA-F0-9]{8}$"
+FILE_NAME_PATTERN    = "^[a-zA-Z0-9_]*.xls(x?)$"
+BASE_ADDR_PATTERN    = "^(0x|0X)[a-fA-F0-9]{4,8}$"
 TYPE_PATTERN         = "^reg$|^mem$"
 OFFSET_PATTERN       = "^(0x|0X)[a-fA-F0-9]{1,8}$"
 NAME_PATTERN         = "^[a-zA-Z0-9_]+$"
@@ -24,3 +24,4 @@ RESET_PATTERN        = "(^[1-9]+[0-9]*\'b[0-1]+$)|(^[1-9]+[0-9]*\'h[a-fA-F0-9]+$
 # default value
 DEFAULT_BYTES = 4
 DEFAULT_WIDTH = 32
+DEFAULT_SYSTEM_NAME = "soc"
