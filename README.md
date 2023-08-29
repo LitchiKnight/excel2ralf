@@ -14,3 +14,6 @@ system level
 ```
 python main.py -s -d .\example
 ```
+
+## register Excel layout
+![](img/register_Excel_layout.png)
