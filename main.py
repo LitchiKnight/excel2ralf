@@ -66,12 +66,11 @@ def main():
     print("[Info] all register Excel files are converted done.")
 
     for base_addr, ral_code in ralf.items():
+        abs_file_path = os.path.join(output_path, ralf_name)
         if len(ralf) > 1:
             base_addr = base_addr.replace("\'h", "0x")
-            temp_name = ralf_name.replace(".ralf", f"_{base_addr}.ralf")
-        else:
-            temp_name = ralf_name
-        with open(f"{output_path}\{temp_name}", "w") as f:
+            abs_file_path = os.path.join(output_path, ralf_name.replace(".ralf", f"_{base_addr}.ralf"))
+        with open(abs_file_path, "w") as f:
             f.write(ral_code)
 
     print(f"[Info] ralf file output directory: {os.path.abspath(output_path)}")
