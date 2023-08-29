@@ -73,6 +73,7 @@ def main():
         with open(abs_file_path, "w") as f:
             f.write(ral_code)
 
-    print(f"[Info] ralf file output directory: {os.path.abspath(output_path)}")
+    print(f"[Info] ralf file output directory: {output_path}")
 
+# execute main function
 main()
