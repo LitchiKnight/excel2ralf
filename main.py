@@ -52,16 +52,18 @@ def main():
 
     # start parse execel
     excel_parser = ExcelParser()
+    ralf_name = ""
     if args.s:
         excel_parser.parse_multi_files(args.dir)
         excel_parser.gen_system_ralf()
+        ralf_name = f"{DEFAULT_SYSTEM_NAME}.ralf"
     else:
         excel_parser.parse_single_file(args.file)
         excel_parser.gen_module_ralf()
+        module_name = excel_parser.get_module_name()
+        ralf_name = f"{module_name}.ralf"
     ralf = excel_parser.get_ralf()
-
-    module_name = excel_parser.get_module_name()
-    ralf_name = f"{DEFAULT_SYSTEM_NAME}.ralf" if args.s else f"{module_name}.ralf"
+    print("[Info] all register Excel files are converted done.")
 
     for base_addr, ral_code in ralf.items():
         if len(ralf) > 1:
@@ -72,6 +74,6 @@ def main():
         with open(f"{output_path}\{temp_name}", "w") as f:
             f.write(ral_code)
 
-    print(f"[Info] ralf file already output to {os.path.abspath(output_path)}, please confirm.")
+    print(f"[Info] ralf file output directory: {os.path.abspath(output_path)}")
 
 main()

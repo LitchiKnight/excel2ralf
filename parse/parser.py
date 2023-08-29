@@ -20,7 +20,7 @@ class ExcelParser:
         self.__ral_list    = {}
 
     def __parse_excel(self, f_name):
-        print(f"[Info] start convert {f_name}.")
+        print(f"[Info] start parsing {f_name}.")
         # try opening source file
         try:
             excel = xlrd.open_workbook(f_name)
