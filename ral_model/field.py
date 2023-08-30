@@ -61,5 +61,5 @@ class Field:
 
     # ================ generate ralf code ================ #
     def gen_ralf_code(self):
-        ralf = f"\tfield {self.__name} {{\n\t\tbits {self.get_bit_range()};\n\t\taccess {self.__access};\n\t\treset {self.__reset};\n\t}}\n"
+        ralf = f"\tfield {self.__name} ({self.__name}) {{\n\t\tbits {self.get_bit_range()};\n\t\taccess {self.__access};\n\t\treset {self.__reset};\n\t}}\n"
         return ralf
