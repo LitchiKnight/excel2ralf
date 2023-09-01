@@ -351,7 +351,7 @@ class ExcelParser:
     def get_module_name(self):
         return self.__module_name
 
-    def parse_single_file(self, path):
+    def parse_excel_file(self, path):
         cwd = os.getcwd()
         abs = os.path.abspath(path)
         dir = os.path.dirname(abs)
@@ -364,11 +364,6 @@ class ExcelParser:
         self.__parse_excel(f_name)
         self.__parse_table()
         os.chdir(cwd)
-
-    def parse_multi_files(self, path):
-        file_list = os.listdir(path)
-        for f_name in file_list:
-            self.parse_single_file(os.path.join(path, f_name))
 
     def gen_module_ralf(self):
         self.__adapt_block_name()

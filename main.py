@@ -54,11 +54,13 @@ def main():
     excel_parser = ExcelParser()
     ralf_name = ""
     if args.s:
-        excel_parser.parse_multi_files(args.dir)
+        file_list = os.listdir(args.dir)
+        for file in file_list:
+             excel_parser.parse_excel_file(os.path.join(args.dir, file))
         excel_parser.gen_system_ralf()
         ralf_name = f"{DEFAULT_SYSTEM_NAME}.ralf"
     else:
-        excel_parser.parse_single_file(args.file)
+        excel_parser.parse_excel_file(args.file)
         excel_parser.gen_module_ralf()
         module_name = excel_parser.get_module_name()
         ralf_name = f"{module_name}.ralf"
