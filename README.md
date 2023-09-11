@@ -12,7 +12,7 @@ python main.py -f .\example\mate_project_router_module_reg_spec.xlsx -o .
 
 system level
 ```
-python main.py -s -d .\example
+python main.py -s -d .\example -o .
 ```
 
 ## register Excel layout
