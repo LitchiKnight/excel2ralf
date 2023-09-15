@@ -13,20 +13,14 @@ class Register(Base):
     # ================ append field ================ #
     def append_field(self, field):
         if isinstance(field, Field):
-            field_name = field.get_field_name()
-            if field_name == "reserved" or field_name == "rsv":
-                new_name = f"{field_name}_{str(self.__rsv_cnt)}"
-                field.rename_field(new_name)
-                self.__rsv_cnt += 1
             self.__field_list.append(field)
-            return
         else:
             print("[Error] invalid field object, please check!")
-        sys.exit()
+            sys.exit()
 
     def has_field(self, name):
         for f in self.__field_list:
-            if f.get_field_name() == name:
+            if f.get_name() == name:
                 return True
         return False
 

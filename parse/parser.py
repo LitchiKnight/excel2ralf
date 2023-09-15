@@ -191,8 +191,9 @@ class ExcelParser:
     def __parse_field(self, row, reg_name):
         field_name = self.__parse_field_name(row)
         bits       = self.__parse_bits(row)
-        access     = self.__parse_access(row)
-        reset      = self.__parse_reset(row)
+        if (not field_name == "reserved"):
+            access = self.__parse_access(row)
+            reset  = self.__parse_reset(row)
 
         # field property check
         try:
@@ -200,9 +201,9 @@ class ExcelParser:
                 raise Exception(f"[Error] line{row+1}: occur an empty FieldName, please check!")
             if not bits:
                 raise Exception(f"[Error] Bits of {reg_name}.{field_name} cannot be empty, please check!")
-            if not access:
+            if (not field_name == "reserved" and not access):
                 raise Exception(f"[Error] Access of {reg_name}.{field_name} cannot be empty, please check!")
-            if not reset:
+            if (not field_name == "reserved" and not reset):
                 raise Exception(f"[Error] ResetValue of {reg_name}.{field_name} cannot be empty, please check!")
         except Exception as e:
             print(e)
@@ -211,8 +212,9 @@ class ExcelParser:
         field = Field(field_name)
         bits = self.__formatting_bits(bits)
         field.set_bits(bits)
-        field.set_access(access)
-        field.set_reset(reset)
+        if (not field_name == "reserved"):
+            field.set_access(access)
+            field.set_reset(reset)
 
         return field
 
