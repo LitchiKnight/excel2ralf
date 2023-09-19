@@ -6,19 +6,19 @@ from parse.parser import ExcelParser
 from base.macro import *
 
 def main():
-    arg_parser = argparse.ArgumentParser(description='excel2ralf script')
+    arg_parser = argparse.ArgumentParser(description='transform register Excel file to RALF file')
 
     arg_parser.add_argument('-s', action='store_true', default=False,
                             help="generate ralf file in system level")
     arg_parser.add_argument('-f', '--file',
                             type=str, default='',
-                            help="specify a register Excel file to be converted")
-    arg_parser.add_argument('-d', '--dir',
+                            help="specify a register Excel file to be transformed")
+    arg_parser.add_argument('-d', '--directory',
                             type=str, default='',
                             help="specify a directory which contents register Excel files")
     arg_parser.add_argument('-o', '--output',
                             type=str, default='.',
-                            help="the output path of the converted ralf file")
+                            help="specify the output path of the tansformed ralf file")
 
     args = arg_parser.parse_args()
     
@@ -65,7 +65,7 @@ def main():
         module_name = excel_parser.get_module_name()
         ralf_name = f"{module_name}.ralf"
     ralf = excel_parser.get_ralf()
-    print("[Info] all register Excel files are converted done.")
+    print("[Info] all register Excel files are transformed done.")
 
     for base_addr, ral_code in ralf.items():
         abs_file_path = os.path.join(output_path, ralf_name)

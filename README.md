@@ -1,5 +1,5 @@
 # excel2ralf
-a python script which is used for converting register Excel file into ralf file. 
+a python script which is used for transforming register Excel file into ralf file. 
 
 ## dependence
 xlrd == 1.2.0
