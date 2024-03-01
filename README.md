@@ -18,5 +18,5 @@ python main.py -s -d .\example -o .
 ## register Excel layout
 ![](img/register_Excel_layout.png)
 
-## detail
+## usage detail
 https://github.com/LitchiKnight/UVM_register_model_best_practice.git
