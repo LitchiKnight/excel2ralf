@@ -1,5 +1,6 @@
 from common.base import Base
 from common.const import *
+from ral_model.ral_system import RalBlock
 
 class ExcelParser:
   def __init__(self) -> None:
@@ -7,7 +8,7 @@ class ExcelParser:
 
   # empty check
   def is_empty_cells(self, row, _range):
-    return all(self.table.cell_type(row, col) is 0 for col in _range)
+    return all(self.table.cell_type(row, col) == 0 for col in _range)
   
   def is_block_empty(self, row):
     return self.is_empty_cells(row, range(BASEADDRESS, BASEADDRESS+1))
@@ -24,38 +25,47 @@ class ExcelParser:
   # parse table cell
   def parse_baseaddr(self, row):
     addr = self.table.cell_value(row, BASEADDRESS)
-    Base.print(addr)
+    return addr
 
   def parse_type(self, row):
     _type = self.table.cell_value(row, TYPE)
-    Base.print(_type)
+    return _type
 
   def parse_offset(self, row):
-    pass
+    offset = self.table.cell_value(row, OFFSETADDRESS)
+    return offset
 
   def parse_regname(self, row):
-    pass
+    regname = self.table.cell_value(row, REGNAME)
+    return regname
 
   def parse_width(self, row):
-    pass
+    width = self.table.cell_value(row, WIDTH)
+    return width
 
   def parse_bits(self, row):
-    pass
+    bits = self.table.cell_value(row, BITS)
+    bits = str(bits).strip()
+    return bits[1]-bits[0]+1
 
   def parse_fieldname(self, row):
-    pass
+    filedname = self.table.cell_value(row, FIELDNAME)
+    return filedname
 
   def parse_access(self, row):
-    pass
+    access = self.table.cell_value(row, ACCESS)
+    return access
 
   def parse_resetvalue(self, row):
-    pass
+    resetvalue = self.table.cell_value(row, RESETVALUE)
+    return resetvalue
 
   def parse_description(self, row):
-    pass
+    description = self.table.cell_value(row, DESCRIPTION)
+    return description
 
   def add_block(self, row, ral):
-    self.parse_baseaddr(row)
+    self.ral.baseaddr = self.parse_baseaddr(row)
 
   def add_register(self, row, ral):
     self.parse_type(row)
