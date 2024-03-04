@@ -1,16 +1,17 @@
 # table header
 ( 
-  BASEADDRESS   ,
-  TYPE          ,
-  OFFSETADDRESS ,
-  REGNAME       ,
-  WIDTH         ,
-  BITS          ,
-  FIELDNAME     ,
-  ACCESS        ,
-  RESETVALUE    ,
-  DESCRIPTION   ,
-) = range(0, 10)
+  BASEADDRESS     ,
+  TYPE            ,
+  OFFSETADDRESS   ,
+  REGNAME         ,
+  WIDTH           ,
+  REGRESETVALUE   ,
+  BITS            ,
+  FIELDNAME       ,
+  ACCESS          ,
+  FIELDRESETVALUE ,
+  DESCRIPTION     ,
+) = range(0, 11)
 
 # field access options
 ACCESS_OPTIONS = [

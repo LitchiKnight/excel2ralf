@@ -17,13 +17,13 @@ class ExcelParser:
     return self.is_empty_cells(row, range(BASEADDRESS, BASEADDRESS+1))
   
   def is_empty_item_cols(self, row):
-    return self.is_empty_cells(row, range(TYPE, WIDTH+1))
+    return self.is_empty_cells(row, range(TYPE, REGRESETVALUE+1))
   
   def is_empty_field_cols(self, row):
-    return self.is_empty_cells(row, range(BITS, RESETVALUE+1))
+    return self.is_empty_cells(row, range(BITS, FIELDRESETVALUE+1))
   
   def is_table_end(self, row):
-    return self.is_empty_cells(row, range(BASEADDRESS, RESETVALUE+1))
+    return self.is_empty_cells(row, range(BASEADDRESS, FIELDRESETVALUE+1))
 
   # format functions
   def get_bits_range(self, bits: str):
@@ -46,14 +46,15 @@ class ExcelParser:
   # parse functions
   def parse_table_cell(self, row: int, col: int, pattern: str):
     cell = self.table.cell_value(row, col)
+    cell_pos = f'{chr(ord("A")+col)}{row+1}'
     if type(cell) == float:
       cell = int(cell)
     value = str(cell).strip()
     if value:
       if not re.match(pattern, value):
-        Base.error(f'({row+1},{chr(ord("A")+col)}): invalid Excel table cell value "{value}", please check!')
+        Base.error(f'invalid table cell value "{value}" at Excel [red]{cell_pos}[/red], please check!')
     else:
-        Base.error(f'({row+1},{chr(ord("A")+col)}): empty Excel table cell, please check!')
+        Base.error(f'empty table cell at Excel [red]{cell_pos}[/red], please check!')
     return value
 
   def parse_block_col(self, row: int):
@@ -65,26 +66,29 @@ class ExcelParser:
     register = RalRegister(self.parse_table_cell(row, REGNAME, NAME_PATTERN))
     register.offset = self.format_addr(self.parse_table_cell(row, OFFSETADDRESS, OFFSET_PATTERN))
     register.width  = self.parse_table_cell(row, WIDTH, WIDTH_PATTERN)
+    register.reset  = self.parse_table_cell(row, REGRESETVALUE, RESET_PATTERN)
     return register
 
   def parse_field_col(self, row: int):
     field = RalField(self.parse_table_cell(row, FIELDNAME, NAME_PATTERN))
     
     bits = self.parse_table_cell(row, BITS, BITS_PATTERN)
+    cell_pos = f'{chr(ord("A")+BITS)}{row+1}'
     bits_range = self.get_bits_range(bits)
     if bits_range > 0:
       field.bits = bits_range
     else:
-      Base.error(f'cell({row+1}, {BITS+1}): invalid table cell value "{bits}", please check!')
+      Base.error(f'invalid table cell value "{bits}" at Excel [red]{cell_pos}[/red], please check!')
     
     access = self.parse_table_cell(row, ACCESS, ACCESS_PATTERN)
+    cell_pos = f'{chr(ord("A")+ACCESS)}{row+1}'
     if access.lower() in ACCESS_OPTIONS:
       field.access = access.lower()
     else:
-      Base.error(f'cell({row+1, ACCESS+1}): invalid table cell value "{access}", please check!')
+      Base.error(f'invalid table cell value "{access}" at Excel [red]{cell_pos}[/red], please check!')
 
     if not field.reserved:
-      field.reset = self.parse_table_cell(row, RESETVALUE, RESET_PATTERN)
+      field.reset = self.parse_table_cell(row, FIELDRESETVALUE, RESET_PATTERN)
 
     return field
 
@@ -92,7 +96,6 @@ class ExcelParser:
   def init(self, excel):
     self.table = excel.sheets()[1]
     self.module = excel.sheet_names()[1]
-    #TODO: create ral model instance
 
   def parse_table(self):
     table = self.table

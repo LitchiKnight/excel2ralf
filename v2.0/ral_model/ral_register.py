@@ -7,6 +7,7 @@ class RalRegister(RalBase):
     self.name   = name
     self.offset = ''
     self.width  = ''
+    self.reset  = ''
     self.fields = []
 
   def add_field(self, field):
