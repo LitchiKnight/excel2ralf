@@ -10,19 +10,19 @@ class ExcelParser:
     self.model = None
 
   # empty check
-  def is_empty_cells(self, row, _range):
+  def is_empty_cells(self, row: int, _range: range):
     return all(self.table.cell_type(row, col) == 0 for col in _range)
   
-  def is_empty_block_cols(self, row):
+  def is_empty_block_cols(self, row: int):
     return self.is_empty_cells(row, range(BASEADDRESS, BASEADDRESS+1))
   
-  def is_empty_item_cols(self, row):
+  def is_empty_item_cols(self, row: int):
     return self.is_empty_cells(row, range(TYPE, REGRESETVALUE+1))
   
-  def is_empty_field_cols(self, row):
+  def is_empty_field_cols(self, row: int):
     return self.is_empty_cells(row, range(BITS, FIELDRESETVALUE+1))
   
-  def is_table_end(self, row):
+  def is_table_end(self, row: int):
     return self.is_empty_cells(row, range(BASEADDRESS, FIELDRESETVALUE+1))
 
   # format functions
@@ -38,7 +38,7 @@ class ExcelParser:
     else:
       return -1
     
-  def format_addr(self, addr):
+  def format_addr(self, addr: str):
     addr = addr.replace("0x", "\'h") # 0x -> 'h
     addr = addr.replace("0X", "\'h") # 0X -> 'h
     return addr
@@ -93,7 +93,7 @@ class ExcelParser:
     return field
 
   # main process
-  def init(self, excel):
+  def init(self, excel: object):
     self.table = excel.sheets()[1]
     self.module = excel.sheet_names()[1]
 
@@ -117,7 +117,7 @@ class ExcelParser:
 
     self.model = block
 
-  def run(self, excel):
+  def run(self, excel: object):
     self.init(excel)
     self.parse_table()
 

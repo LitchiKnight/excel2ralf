@@ -3,7 +3,7 @@ from ral_model.ral_base import RalBase
 from ral_model.ral_register import RalRegister
 
 class RalBlock(RalBase):
-  def __init__(self, name) -> None:
+  def __init__(self, name: str) -> None:
     super().__init__()
     self.name      = name
     self.baseaddr  = ''

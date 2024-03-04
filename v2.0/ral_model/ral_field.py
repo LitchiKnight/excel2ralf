@@ -1,7 +1,7 @@
 from ral_model.ral_base import RalBase
 
 class RalField(RalBase):
-  def __init__(self, name) -> None:
+  def __init__(self, name: str) -> None:
     super().__init__()
     self.name     = name
     self.reserved = (name == 'reserved')

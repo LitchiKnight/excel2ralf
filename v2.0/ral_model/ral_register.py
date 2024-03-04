@@ -1,8 +1,9 @@
 from common.base import Base
 from ral_model.ral_base import RalBase
+from ral_model.ral_field import RalField
 
 class RalRegister(RalBase):
-  def __init__(self, name) -> None:
+  def __init__(self, name: str) -> None:
     super().__init__()
     self.name   = name
     self.offset = ''
@@ -10,7 +11,7 @@ class RalRegister(RalBase):
     self.reset  = ''
     self.fields = []
 
-  def add_field(self, field):
+  def add_field(self, field: RalField):
     self.fields.append(field)
 
   def get_latest_field(self):
