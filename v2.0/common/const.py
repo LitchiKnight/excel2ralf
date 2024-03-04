@@ -25,7 +25,6 @@ ACCESS_OPTIONS = [
 VALID_WIDTH = [8, 16, 32]
 
 # patterns
-FILE_NAME_PATTERN    = "^[a-zA-Z0-9_]*.xls(x?)$"
 BASEADDR_PATTERN     = "^(0x|0X)[a-fA-F0-9]{4,8}$"
 TYPE_PATTERN         = "^reg$|^mem$"
 OFFSET_PATTERN       = "^(0x|0X)[a-fA-F0-9]{1,8}$"
