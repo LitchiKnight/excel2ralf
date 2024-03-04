@@ -1,87 +1,94 @@
+import re
 from common.base import Base
 from common.const import *
-from ral_model.ral_system import RalBlock
+from ral_model.ral_block import RalBlock
+from ral_model.ral_register import RalRegister
+from ral_model.ral_field import RalField
 
 class ExcelParser:
   def __init__(self) -> None:
-    pass
+    self.model = None
 
   # empty check
   def is_empty_cells(self, row, _range):
     return all(self.table.cell_type(row, col) == 0 for col in _range)
   
-  def is_block_empty(self, row):
+  def is_empty_block_cols(self, row):
     return self.is_empty_cells(row, range(BASEADDRESS, BASEADDRESS+1))
   
-  def is_item_empty(self, row):
+  def is_empty_item_cols(self, row):
     return self.is_empty_cells(row, range(TYPE, WIDTH+1))
   
-  def is_field_empty(self, row):
-    return self.is_empty_cells(row, range(BITS, DESCRIPTION+1))
+  def is_empty_field_cols(self, row):
+    return self.is_empty_cells(row, range(BITS, RESETVALUE+1))
   
   def is_table_end(self, row):
-    return self.is_empty_cells(row, range(BASEADDRESS, DESCRIPTION+1))
-  
-  # parse table cell
-  def parse_baseaddr(self, row):
-    addr = self.table.cell_value(row, BASEADDRESS)
+    return self.is_empty_cells(row, range(BASEADDRESS, RESETVALUE+1))
+
+  # format functions
+  def get_bits_range(self, bits: str):
+    symbols = ["[", "]", " "]
+    for s in symbols:
+      bits = bits.replace(s, '')
+    bits_arr = bits.split(':')
+    if len(bits_arr) == 2:
+      return int(bits_arr[0])-int(bits_arr[1])+1
+    elif len(bits_arr) == 1:
+      return 1
+    else:
+      return -1
+    
+  def format_addr(self, addr):
+    addr = addr.replace("0x", "\'h") # 0x -> 'h
+    addr = addr.replace("0X", "\'h") # 0X -> 'h
     return addr
 
-  def parse_type(self, row):
-    _type = self.table.cell_value(row, TYPE)
-    return _type
+  # parse functions
+  def parse_table_cell(self, row: int, col: int, pattern: str):
+    cell = self.table.cell_value(row, col)
+    if type(cell) == float:
+      cell = int(cell)
+    value = str(cell).strip()
+    if value:
+      if not re.match(pattern, value):
+        Base.error(f'({row+1},{chr(ord("A")+col)}): invalid Excel table cell value "{value}", please check!')
+    else:
+        Base.error(f'({row+1},{chr(ord("A")+col)}): empty Excel table cell, please check!')
+    return value
 
-  def parse_offset(self, row):
-    offset = self.table.cell_value(row, OFFSETADDRESS)
-    return offset
+  def parse_block_col(self, row: int):
+    block = RalBlock(self.module)
+    block.baseaddr = self.format_addr(self.parse_table_cell(row, BASEADDRESS, BASEADDR_PATTERN))
+    return block
 
-  def parse_regname(self, row):
-    regname = self.table.cell_value(row, REGNAME)
-    return regname
+  def parse_register_col(self, row: int):
+    register = RalRegister(self.parse_table_cell(row, REGNAME, NAME_PATTERN))
+    register.offset = self.format_addr(self.parse_table_cell(row, OFFSETADDRESS, OFFSET_PATTERN))
+    register.width  = self.parse_table_cell(row, WIDTH, WIDTH_PATTERN)
+    return register
 
-  def parse_width(self, row):
-    width = self.table.cell_value(row, WIDTH)
-    return width
+  def parse_field_col(self, row: int):
+    field = RalField(self.parse_table_cell(row, FIELDNAME, NAME_PATTERN))
+    
+    bits = self.parse_table_cell(row, BITS, BITS_PATTERN)
+    bits_range = self.get_bits_range(bits)
+    if bits_range > 0:
+      field.bits = bits_range
+    else:
+      Base.error(f'cell({row+1}, {BITS+1}): invalid table cell value "{bits}", please check!')
+    
+    access = self.parse_table_cell(row, ACCESS, ACCESS_PATTERN)
+    if access.lower() in ACCESS_OPTIONS:
+      field.access = access.lower()
+    else:
+      Base.error(f'cell({row+1, ACCESS+1}): invalid table cell value "{access}", please check!')
 
-  def parse_bits(self, row):
-    bits = self.table.cell_value(row, BITS)
-    bits = str(bits).strip()
-    return bits[1]-bits[0]+1
+    if not field.reserved:
+      field.reset = self.parse_table_cell(row, RESETVALUE, RESET_PATTERN)
 
-  def parse_fieldname(self, row):
-    filedname = self.table.cell_value(row, FIELDNAME)
-    return filedname
-
-  def parse_access(self, row):
-    access = self.table.cell_value(row, ACCESS)
-    return access
-
-  def parse_resetvalue(self, row):
-    resetvalue = self.table.cell_value(row, RESETVALUE)
-    return resetvalue
-
-  def parse_description(self, row):
-    description = self.table.cell_value(row, DESCRIPTION)
-    return description
-
-  def add_block(self, row, ral):
-    self.ral.baseaddr = self.parse_baseaddr(row)
-
-  def add_register(self, row, ral):
-    self.parse_type(row)
-    self.parse_offset(row)
-    self.parse_regname(row)
-    self.parse_width(row)
-
-  def add_field(self, row, ral):
-    self.parse_bits(row)
-    self.parse_fieldname(row)
-    self.parse_access(row)
-    self.parse_resetvalue(row)
-    self.parse_description(row)
+    return field
 
   # main process
-
   def init(self, excel):
     self.table = excel.sheets()[1]
     self.module = excel.sheet_names()[1]
@@ -89,23 +96,27 @@ class ExcelParser:
 
   def parse_table(self):
     table = self.table
+    block = None
 
-    for row in range(table.nrows):
+    for row in range(1, table.nrows):
       if self.is_table_end(row):
         break
 
-      if not self.is_block_empty(row):
-        Base.print(f"create block {self.module}")
-        self.add_block(row, None)
+      if not self.is_empty_block_cols(row):
+        block = self.parse_block_col(row)
 
-      if not self.is_item_empty(row):
-        Base.print(f"  create register {table.cell_value(row, REGNAME)}")
-        self.add_register(row, None)
+      if not self.is_empty_item_cols(row):
+        block.add_register(self.parse_register_col(row))
 
-      if not self.is_field_empty(row):
-        Base.print(f"    create field {table.cell_value(row, FIELDNAME)}")
-        self.add_field(row, None)
+      if not self.is_empty_field_cols(row):
+        register = block.get_latest_register()
+        register.add_field(self.parse_field_col(row))
+
+    self.model = block
 
   def run(self, excel):
     self.init(excel)
     self.parse_table()
+
+  def get_ralf_code(self):
+    return self.model.gen_ralf_code()

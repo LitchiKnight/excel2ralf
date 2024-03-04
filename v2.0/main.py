@@ -1,5 +1,4 @@
 import os
-import sys
 import xlrd
 import argparse
 from common.base import Base
@@ -26,8 +25,8 @@ def check_arg(args):
 
 def main():
   arg_parser = argparse.ArgumentParser(description='transform register Excel file to RALF file')
-  arg_parser.add_argument('-f', '--file'  , type=str, default='' , help="specify a register Excel file to be transformed")
-  arg_parser.add_argument('-o', '--output', type=str, default='.', help="specify the output path of the tansformed ralf file")
+  arg_parser.add_argument('-f', '--file'  , type=str, default='' , help="specify a register Excel file")
+  arg_parser.add_argument('-o', '--output', type=str, default='.', help="specify the output path of the ralf file")
 
   args = arg_parser.parse_args()
   check_arg(args)
@@ -35,12 +34,13 @@ def main():
   file_name = os.path.basename(args.file)
   Base.info(f"Start transform {file_name}")
 
-  # excel = xlrd.open_workbook(args.file)
-  excel = Base.run_with_animation("Parsing Excel file...", xlrd.open_workbook, args.file)
+  excel = Base.run_with_animation("Reading Excel file...", xlrd.open_workbook, args.file)
   parser = ExcelParser()
 
-  parser.run(excel)
-
+  Base.run_with_animation("Parsing Excel file...", parser.run, excel)
+  with open(f'{parser.module}.ralf', 'w') as f:
+    Base.run_with_animation("Generating RALF file...", f.write, parser.get_ralf_code())
+  Base.info(f"output file {parser.module}.ralf")
 
 if __name__ == "__main__":
   main()

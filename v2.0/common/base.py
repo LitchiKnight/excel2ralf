@@ -1,6 +1,5 @@
-import os
-import re
 import sys
+import time
 from rich.console import Console
 
 class Base:
@@ -29,6 +28,7 @@ class Base:
   @classmethod
   def run_with_animation(cls, msg, func, *args):
     with Base.console.status(f"[green bold]{msg}"):
+      time.sleep(1)
       try:
         return func(*args)
       except Exception as e:
