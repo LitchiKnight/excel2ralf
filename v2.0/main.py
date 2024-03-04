@@ -40,7 +40,7 @@ def main():
   Base.run_with_animation("Parsing Excel file...", parser.run, excel)
   with open(f'{parser.module}.ralf', 'w') as f:
     Base.run_with_animation("Generating RALF file...", f.write, parser.get_ralf_code())
-  Base.info(f"output file {parser.module}.ralf")
+  Base.info(f"output {parser.module}.ralf")
 
 if __name__ == "__main__":
   main()
