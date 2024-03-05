@@ -10,22 +10,22 @@ class RalBlock(RalBase):
     self.bytes     = ''
     self.registers = []
 
-  def add_register(self, register: RalRegister):
+  def add_register(self, register: RalRegister) -> None:
     self.registers.append(register)
 
-  def get_latest_register(self):
+  def get_latest_register(self) -> RalRegister:
     if len(self.registers) <= 0:
       Base.error("there is no register in block, please check!")
     else:
       return self.registers[-1]
         
-  def calc_bytes(self):
+  def calc_bytes(self) -> None:
     for r in self.registers:
       _bytes = int(r.width) // 8
       if not self.bytes or self.bytes > _bytes:
         self.bytes = _bytes
 
-  def gen_ralf_code(self):
+  def gen_ralf_code(self) -> str:
     super().gen_ralf_code()
 
     ralf_code = ''

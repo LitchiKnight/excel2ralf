@@ -9,19 +9,19 @@ class Base:
     pass
 
   @classmethod
-  def print(cls, msg: str):
+  def print(cls, msg: str) -> None:
     Base.console.print(msg)
 
   @classmethod
-  def info(cls, msg: str):
+  def info(cls, msg: str) -> None:
     Base.console.print(f"[green bold]INFO:[/green bold] {msg}")
 
   @classmethod
-  def warning(cls, msg: str):
+  def warning(cls, msg: str) -> None:
     Base.console.print(f"[yellow bold]WARNING:[/yellow bold] {msg}")
 
   @classmethod
-  def error(cls, msg: str):
+  def error(cls, msg: str) -> None:
     Base.console.print(f"[red bold]ERROR:[/red bold] {msg}")
     sys.exit()
 

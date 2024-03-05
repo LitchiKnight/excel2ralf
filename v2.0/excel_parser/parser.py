@@ -7,26 +7,26 @@ from ral_model.ral_field import RalField
 
 class ExcelParser:
   def __init__(self) -> None:
-    self.model = None
+    pass
 
   # empty check
-  def is_empty_cells(self, row: int, _range: range):
+  def is_empty_cells(self, row: int, _range: range) -> bool:
     return all(self.table.cell_type(row, col) == 0 for col in _range)
   
-  def is_empty_block_cols(self, row: int):
+  def is_empty_block_cols(self, row: int) -> bool:
     return self.is_empty_cells(row, range(BASEADDRESS, BASEADDRESS+1))
   
-  def is_empty_item_cols(self, row: int):
+  def is_empty_item_cols(self, row: int) -> bool:
     return self.is_empty_cells(row, range(TYPE, REGRESETVALUE+1))
   
-  def is_empty_field_cols(self, row: int):
+  def is_empty_field_cols(self, row: int) -> bool:
     return self.is_empty_cells(row, range(BITS, FIELDRESETVALUE+1))
   
-  def is_table_end(self, row: int):
+  def is_table_end(self, row: int) -> bool:
     return self.is_empty_cells(row, range(BASEADDRESS, FIELDRESETVALUE+1))
 
   # format functions
-  def get_bits_range(self, bits: str):
+  def get_bits_range(self, bits: str) -> int:
     symbols = ["[", "]", " "]
     for s in symbols:
       bits = bits.replace(s, '')
@@ -38,13 +38,13 @@ class ExcelParser:
     else:
       return -1
     
-  def format_addr(self, addr: str):
+  def format_addr(self, addr: str) -> str:
     addr = addr.replace("0x", "\'h") # 0x -> 'h
     addr = addr.replace("0X", "\'h") # 0X -> 'h
     return addr
 
   # parse functions
-  def parse_table_cell(self, row: int, col: int, pattern: str):
+  def parse_table_cell(self, row: int, col: int, pattern: str) -> str:
     cell = self.table.cell_value(row, col)
     cell_pos = f'{chr(ord("A")+col)}{row+1}'
     if type(cell) == float:
@@ -57,19 +57,19 @@ class ExcelParser:
         Base.error(f'empty table cell at Excel [red]{cell_pos}[/red], please check!')
     return value
 
-  def parse_block_col(self, row: int):
+  def parse_block_col(self, row: int) -> RalBlock:
     block = RalBlock(self.module)
     block.baseaddr = self.format_addr(self.parse_table_cell(row, BASEADDRESS, BASEADDR_PATTERN))
     return block
 
-  def parse_register_col(self, row: int):
+  def parse_register_col(self, row: int) -> RalRegister:
     register = RalRegister(self.parse_table_cell(row, REGNAME, NAME_PATTERN))
     register.offset = self.format_addr(self.parse_table_cell(row, OFFSETADDRESS, OFFSET_PATTERN))
     register.width  = self.parse_table_cell(row, WIDTH, WIDTH_PATTERN)
     register.reset  = self.parse_table_cell(row, REGRESETVALUE, RESET_PATTERN)
     return register
 
-  def parse_field_col(self, row: int):
+  def parse_field_col(self, row: int) -> RalField:
     field = RalField(self.parse_table_cell(row, FIELDNAME, NAME_PATTERN))
     
     bits = self.parse_table_cell(row, BITS, BITS_PATTERN)
@@ -93,11 +93,11 @@ class ExcelParser:
     return field
 
   # main process
-  def init(self, excel: object):
-    self.table = excel.sheets()[1]
+  def init(self, excel: object) -> None:
+    self.table  = excel.sheets()[1]
     self.module = excel.sheet_names()[1]
 
-  def parse_table(self):
+  def parse_table(self) -> RalBlock:
     table = self.table
     block = None
 
@@ -115,11 +115,9 @@ class ExcelParser:
         register = block.get_latest_register()
         register.add_field(self.parse_field_col(row))
 
-    self.model = block
+    return block
 
-  def run(self, excel: object):
+  def run(self, excel: object) -> RalBlock:
     self.init(excel)
-    self.parse_table()
+    return self.parse_table()
 
-  def get_ralf_code(self):
-    return self.model.gen_ralf_code()

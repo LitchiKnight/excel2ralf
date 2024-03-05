@@ -9,19 +9,19 @@ class RalSystem(RalBase):
     self.bytes  = ''
     self.blocks = []
 
-  def add_block(self, block: RalBlock):
+  def add_block(self, block: RalBlock) -> None:
     self.blocks.append(block)
   
-  def get_latest_block(self):
+  def get_latest_block(self) -> RalBlock:
     if len(self.blocks) <= 0:
       Base.error("there is no block in system, please check!")
     else:
       return self.blocks[-1]
 
-  def calc_bytes(self):
+  def calc_bytes(self) -> None:
     pass
 
-  def gen_ralf_code(self):
+  def gen_ralf_code(self) -> str:
     super().gen_ralf_code()
 
     ralf_code = ''

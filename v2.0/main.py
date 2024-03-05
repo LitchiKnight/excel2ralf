@@ -4,7 +4,7 @@ import argparse
 from common.base import Base
 from excel_parser.parser import ExcelParser
 
-def check_arg(args):
+def check_arg(args) -> None:
   file       = args.file
   output     = args.output
   abs_output = os.path.abspath(output)
@@ -23,7 +23,7 @@ def check_arg(args):
   if not os.path.exists(abs_output):
     Base.error(f"{abs_output} is not exists, please check!")
 
-def main():
+def main() -> None:
   arg_parser = argparse.ArgumentParser(description='transform register Excel file to RALF file')
   arg_parser.add_argument('-f', '--file'  , type=str, default='' , help="specify a register Excel file")
   arg_parser.add_argument('-o', '--output', type=str, default='.', help="specify the output path of the ralf file")
@@ -34,13 +34,14 @@ def main():
   file_name = os.path.basename(args.file)
   Base.info(f"Start transform {file_name}")
 
-  excel = Base.run_with_animation("Reading Excel file...", xlrd.open_workbook, args.file)
   parser = ExcelParser()
+  excel  = Base.run_with_animation("Reading Excel file...", xlrd.open_workbook, args.file)
+  model  = Base.run_with_animation("Parsing Excel file...", parser.run, excel)
+  module = parser.module
 
-  Base.run_with_animation("Parsing Excel file...", parser.run, excel)
-  with open(f'{parser.module}.ralf', 'w') as f:
-    Base.run_with_animation("Generating RALF file...", f.write, parser.get_ralf_code())
-  Base.info(f"output {parser.module}.ralf")
+  with open(f'{module}.ralf', 'w') as f:
+    Base.run_with_animation("Generating RALF file...", f.write, model.gen_ralf_code())
+  Base.info(f"output {module}.ralf")
 
 if __name__ == "__main__":
   main()

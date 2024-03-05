@@ -5,5 +5,5 @@ class RalBase(ABC):
     super().__init__()
 
   @abstractmethod
-  def gen_ralf_code(self):
+  def gen_ralf_code(self) -> str:
     pass

@@ -9,7 +9,7 @@ class RalField(RalBase):
     self.access   = ''
     self.reset    = ''
 
-  def gen_ralf_code(self):
+  def gen_ralf_code(self) -> str:
     super().gen_ralf_code()
     ralf_code = f'\tfield {self.name} {{\n\t\tbits {self.bits};\n'
     if (not self.reserved):
