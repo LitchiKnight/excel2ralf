@@ -1,47 +1,40 @@
-import os
-import xlrd
 import argparse
+from pathlib import Path
+import xlrd
 from common.base import Base
 from excel_parser.parser import ExcelParser
 
-def check_arg(args) -> None:
-  file       = args.file
-  output     = args.output
-  abs_output = os.path.abspath(output)
-
-  # check file exists or not
-  if file:
+def check_arg(file: Path, output: Path) -> None:
     exts = {'.xls', '.xlsx'}
-    if not os.path.exists(file):
-      Base.error(f"[bold]{file}[/bold] is not exists, please check!")
-    elif not os.path.splitext(file)[1] in exts:
-      Base.error(f"[bold]{file}[/bold] is not an Excel file, please check!")
-  else:
-    Base.error("you must specify an Excel file, please check!")
-
-  # check output path exists or not
-  if not os.path.exists(abs_output):
-    Base.error(f"{abs_output} is not exists, please check!")
+    
+    if not file.exists():
+        Base.error(f"[bold]{file}[/bold] does not exist, please check!")
+    elif file.suffix not in exts:
+        Base.error(f"[bold]{file}[/bold] is not an Excel file, please check!")
+    
+    if not output.exists():
+        output.mkdir(parents=True, exist_ok=True)
 
 def main() -> None:
-  arg_parser = argparse.ArgumentParser(description='transform register Excel file to RALF file')
-  arg_parser.add_argument('-f', '--file'  , type=str, default='' , help="specify a register Excel file")
-  arg_parser.add_argument('-o', '--output', type=str, default='.', help="specify the output path of the ralf file")
+    arg_parser = argparse.ArgumentParser(description='Transform register Excel file to RALF file')
+    arg_parser.add_argument('-f', '--file', type=Path, required=True, help="Specify a register Excel file")
+    arg_parser.add_argument('-o', '--output', type=Path, default=Path('.'), help="Specify the output path of the RALF file")
 
-  args = arg_parser.parse_args()
-  check_arg(args)
+    args = arg_parser.parse_args()
+    check_arg(args.file, args.output)
 
-  file_name = os.path.basename(args.file)
-  Base.info(f"Start transform {file_name}")
+    file_name = args.file.name
+    Base.info(f"Start transforming {file_name}")
 
-  parser = ExcelParser()
-  excel  = Base.run_with_animation("Reading Excel file...", xlrd.open_workbook, args.file)
-  model  = Base.run_with_animation("Parsing Excel file...", parser.run, excel)
-  module = parser.module
+    parser = ExcelParser()
+    excel = Base.run_with_animation("Reading Excel file...", xlrd.open_workbook, str(args.file))
+    model = Base.run_with_animation("Parsing Excel file...", parser.run, excel)
+    module = parser.module
 
-  with open(f'{module}.ralf', 'w') as f:
-    Base.run_with_animation("Generating RALF file...", f.write, model.gen_ralf_code())
-  Base.info(f"output {module}.ralf")
+    output_file = args.output / f'{module}.ralf'
+    with output_file.open('w') as f:
+        Base.run_with_animation("Generating RALF file...", f.write, model.gen_ralf_code())
+    Base.info(f"Output {output_file}")
 
 if __name__ == "__main__":
-  main()
+    main()
