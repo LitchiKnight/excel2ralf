@@ -21,6 +21,12 @@ class RalRegister(RalBase):
         if not self.fields:
             Base.error("There is no field in register, please check!")
         return self.fields[-1]
+    
+    def verify_fields(self) -> None:
+        """Verify if the fields are valid."""
+        total_filed_bits = sum([int(f.bits) for f in self.fields])
+        if total_filed_bits != int(self.width):
+            Base.error(f"The sum of all field bits in register {self.name} is {total_filed_bits}, not equal to its bit width {self.width}, please check!")
 
     def gen_ralf_code(self) -> str:
         """Generate RALF code for the register."""

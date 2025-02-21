@@ -1,5 +1,4 @@
-import re
-from typing import Any, List
+from typing import Any, List, Pattern
 from common.base import Base
 from common.const import TableHeader, AccessOptions, VALID_WIDTH, BASEADDR_PATTERN, TYPE_PATTERN, OFFSET_PATTERN, NAME_PATTERN, REGARR_WIDTH_PATTERN, WIDTH_PATTERN, BITS_PATTERN, ACCESS_PATTERN, RESET_PATTERN
 from ral_model.ral_block import RalBlock
@@ -11,7 +10,7 @@ class ExcelParser:
         self.table = None
         self.module = None
 
-    def parse_table_cell(self, row: int, col: int, pattern: re.Pattern) -> str:
+    def parse_table_cell(self, row: int, col: int, pattern: Pattern) -> str:
         """Parse the value of a table cell and validate it against a pattern."""
         if self.table is None:
             Base.error("Table is not initialized.")
@@ -131,6 +130,9 @@ class ExcelParser:
                     Base.error("Block is not initialized.")
                 register = block.get_latest_register()
                 register.add_field(self.parse_field_col(row))
+
+        for rg in block.registers:
+            rg.verify_fields()
 
         return block
 
