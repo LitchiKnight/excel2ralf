@@ -1,6 +1,6 @@
 from typing import Any, List, Pattern
 from common.base import Base
-from common.const import TableHeader, AccessOptions, VALID_WIDTH, BASEADDR_PATTERN, TYPE_PATTERN, OFFSET_PATTERN, NAME_PATTERN, REGARR_WIDTH_PATTERN, WIDTH_PATTERN, BITS_PATTERN, ACCESS_PATTERN, RESET_PATTERN
+from common.const import TableHeader, AccessOptions, VALID_WIDTH, BASEADDR_PATTERN, TYPE_PATTERN, OFFSET_PATTERN, NAME_PATTERN, REGARR_WIDTH_PATTERN, WIDTH_PATTERN, BITS_PATTERN, ACCESS_PATTERN, RESET_PATTERN, HDL_PATTERN
 from ral_model.ral_block import RalBlock
 from ral_model.ral_register import RalRegister
 from ral_model.ral_field import RalField
@@ -37,7 +37,7 @@ class ExcelParser:
     
     def is_empty_field_cols(self, row: int) -> bool:
         """Check if the field columns are empty."""
-        return self.is_empty_cells(row, range(TableHeader.BITS.value, TableHeader.FIELDRESETVALUE.value + 1))
+        return self.is_empty_cells(row, range(TableHeader.BITS.value, TableHeader.HDLPATH.value + 1))
     
     def is_table_end(self, row: int) -> bool:
         """Check if the table has ended."""
@@ -100,6 +100,8 @@ class ExcelParser:
 
         if not field.reserved:
             field.reset = self.parse_table_cell(row, TableHeader.FIELDRESETVALUE.value, RESET_PATTERN)
+            if not self.is_empty_cells(row, range(TableHeader.HDLPATH.value, TableHeader.HDLPATH.value + 1)):
+                field.hdl = self.parse_table_cell(row, TableHeader.HDLPATH.value, HDL_PATTERN)
 
         return field
 

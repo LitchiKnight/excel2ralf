@@ -8,11 +8,15 @@ class RalField(RalBase):
         self.bits: str = ''
         self.access: str = ''
         self.reset: str = ''
+        self.hdl: str = ''
 
     def gen_ralf_code(self) -> str:
         """Generate RALF code for the field."""
         super().gen_ralf_code()
-        ralf_code = f'\tfield {self.name} {{\n\t\tbits {self.bits};\n'
+        if self.hdl:
+            ralf_code = f'\tfield {self.name} ({self.hdl}) {{\n\t\tbits {self.bits};\n'
+        else:
+            ralf_code = f'\tfield {self.name} {{\n\t\tbits {self.bits};\n'
         if not self.reserved:
             ralf_code += f'\t\taccess {self.access};\n\t\treset {self.reset};\n'
         ralf_code += '\t}\n'

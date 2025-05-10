@@ -13,7 +13,8 @@ class TableHeader(Enum):
     FIELDNAME = 7
     ACCESS = 8
     FIELDRESETVALUE = 9
-    DESCRIPTION = 10
+    HDLPATH = 10
+    DESCRIPTION = 11
 
 # Field access options
 class AccessOptions(Enum):
@@ -56,3 +57,4 @@ WIDTH_PATTERN = re.compile(r"^[1-9]+[0-9]*$|^[1-9]+[0-9]*\*[1-9]+[0-9]*[k,M,G]?$
 BITS_PATTERN = re.compile(r"^\[[0-9]+(:([0-9]+))?\]$")
 ACCESS_PATTERN = re.compile(r"^[a-zA-Z0-9]+$")
 RESET_PATTERN = re.compile(r"(^[1-9]+[0-9]*\'b[0-1]+$)|(^[1-9]+[0-9]*\'h[a-fA-F0-9]+$)")
+HDL_PATTERN = re.compile(r"^[a-zA-Z0-9_\.\[\]]+$")

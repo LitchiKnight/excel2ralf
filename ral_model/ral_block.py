@@ -38,7 +38,7 @@ class RalBlock(RalBase):
           ralf_code += r.gen_ralf_code()
         ralf_code += f'block {self.name} {{\n\tbytes {self.bytes};\n'
         for r in self.registers:
-          ralf_code += f'\tregister {r.name} ({r.name}) @{r.offset};\n'
+          ralf_code += f'\tregister {r.name} @{r.offset};\n'
         ralf_code += '}\n\n'
         return ralf_code
     
